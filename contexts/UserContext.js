@@ -1,3 +1,5 @@
+// UserContext.js
+
 import React, { createContext, useState, useContext } from 'react';
 
 const UserContext = createContext();
@@ -9,7 +11,9 @@ export const UserProvider = ({ children }) => {
     { username: 'darinel@example.com', password: 'darinel' },
     { username: 'cesar@example.com',password:'cesar'}
   ]);
+  const [chats, setChats] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [messages, setMessages] = useState({}); 
 
   const login = (userData) => {
     setCurrentUser(userData);
@@ -23,21 +27,33 @@ export const UserProvider = ({ children }) => {
 
   const register = (userData) => {
     setUsers(prevUsers => [...prevUsers, userData]);
-    
     setIsAuthenticated(true);
   };
-  
 
   const getUserByUsername = (username) => {
     return users.find(user => user.username === username);
   };
 
+  const createChat = (chat) => {
+    setChats(prevChats => [...prevChats, chat]);
+  };
+
+  const addChat = (chat) => {
+    setChats([...chats, chat]);
+  };
+
+  const addMessageToChat = (chatId, message) => {
+    setMessages(prevMessages => {
+      const chatMessages = prevMessages[chatId] || [];
+      return { ...prevMessages, [chatId]: [...chatMessages, message] };
+    });
+  };
+
   return (
-    <UserContext.Provider value={{ currentUser, isAuthenticated, users, login, logout, register, getUserByUsername }}>
+    <UserContext.Provider value={{ currentUser, users, chats, isAuthenticated, login, logout, register, getUserByUsername, createChat, addChat, messages, addMessageToChat }}>
       {children}
     </UserContext.Provider>
   );
 };
 
 export const useUser = () => useContext(UserContext);
-

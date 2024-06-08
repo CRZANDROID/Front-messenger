@@ -1,21 +1,21 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList } from 'react-native';
-import { useUser } from '../contexts/UserContext'; 
+import { useUser } from '../contexts/UserContext';
 import { useNavigation } from '@react-navigation/native';
 
-
 const ChatListScreen = () => {
-  const { users } = useUser(); 
+  const { chats } = useUser(); 
   const navigation = useNavigation(); 
 
   const renderChatItem = ({ item }) => {
     return (
-      <TouchableOpacity style={styles.chatItem}>
-        
-        <Text style={styles.chatName}>{item.username}</Text>
+      <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate('Chat', { chat: item })}>
+        <Text style={styles.chatName}>{item.name}</Text>
+        <Text style={styles.lastMessage}>Último mensaje...</Text>
       </TouchableOpacity>
     );
   };
+
   const handleAddChat = () => {
     navigation.navigate('AddChat');
   };
@@ -32,7 +32,7 @@ const ChatListScreen = () => {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={users}
+        data={chats}
         renderItem={renderChatItem}
         keyExtractor={(item) => item.username}
       />
@@ -80,10 +80,16 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#CCC',
+    marginBottom: 16, // Margen inferior más grande
   },
   chatName: {
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  lastMessage: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 8,
   },
 });
 

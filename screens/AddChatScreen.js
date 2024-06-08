@@ -1,12 +1,28 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput } from 'react-native';
+// AddChatScreen.js
+
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useUser } from '../contexts/UserContext';
 
 const AddChatScreen = () => {
+  const [name, setName] = useState('');
+  const [account, setAccount] = useState('');
+  const { getUserByUsername, addChat } = useUser();
   const navigation = useNavigation();
 
   const handleGoBack = () => {
     navigation.goBack();
+  };
+
+  const handleAddChat = () => {
+    const user = getUserByUsername(account);
+    if (user) {
+      addChat({ name, username: account });
+      navigation.navigate('ChatsList');
+    } else {
+      Alert.alert('Error', 'Cuenta no encontrada');
+    }
   };
 
   return (
@@ -22,11 +38,9 @@ const AddChatScreen = () => {
         <View style={styles.imageContainer}>
           <Image source={require('../assets/usuario.png')} style={styles.image} />
         </View>
-        
-        <TextInput placeholder="Nombre" style={styles.input} />
-        <TextInput placeholder="Cuenta" style={styles.input} />
-        
-        <TouchableOpacity style={styles.addButton}>
+        <TextInput placeholder="Nombre" style={styles.input} value={name} onChangeText={setName} />
+        <TextInput placeholder="Cuenta" style={styles.input} value={account} onChangeText={setAccount} />
+        <TouchableOpacity style={styles.addButton} onPress={handleAddChat}>
           <Text style={styles.addButtonText}>Agregar</Text>
         </TouchableOpacity>
       </View>
@@ -55,18 +69,11 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     resizeMode: 'contain',
-    
   },
-  
-  titleContainer: {
-    flex: 2,
-  },
-  
   headerText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 22,
-    marginLeft: 16,
   },
   logo: {
     width: 40,
@@ -112,3 +119,4 @@ const styles = StyleSheet.create({
 });
 
 export default AddChatScreen;
+
