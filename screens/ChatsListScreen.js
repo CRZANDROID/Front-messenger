@@ -4,15 +4,19 @@ import { useUser } from '../contexts/UserContext';
 import { useNavigation } from '@react-navigation/native';
 
 const ChatListScreen = () => {
-  const { chats } = useUser(); 
+  const { chats, messages } = useUser(); 
   const navigation = useNavigation(); 
 
   const renderChatItem = ({ item }) => {
+    const lastMessage = messages[item.id]?.[messages[item.id].length - 1]; 
+    const lastMessageTime = lastMessage ? lastMessage.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
     return (
       <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate('Chat', { chat: item })}>
         <Text style={styles.chatName}>{item.name}</Text>
-        <Text style={styles.lastMessage}>Último mensaje...</Text>
-      </TouchableOpacity>
+        <Text style={styles.lastMessage}>{lastMessage?.text}</Text>
+        <Text style={styles.lastMessageTime}>{lastMessageTime}</Text>
+        </TouchableOpacity>
     );
   };
 
@@ -34,7 +38,7 @@ const ChatListScreen = () => {
       <FlatList
         data={chats}
         renderItem={renderChatItem}
-        keyExtractor={(item) => item.username}
+        keyExtractor={(item) => item.id.toString()}
       />
     </View>
   );
@@ -80,7 +84,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#CCC',
-    marginBottom: 16, // Margen inferior más grande
+    marginBottom: 16, 
   },
   chatName: {
     fontSize: 18,
@@ -91,6 +95,15 @@ const styles = StyleSheet.create({
     color: '#888',
     marginTop: 8,
   },
+  lastMessageTime: {
+    fontSize: 12,
+    color: '#888',
+    position: 'absolute',
+    right: 16,
+    top: 16,
+  },
 });
 
 export default ChatListScreen;
+
+

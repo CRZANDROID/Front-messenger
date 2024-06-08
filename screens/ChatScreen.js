@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, FlatList, PermissionsAndroid, Platform, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView, PermissionsAndroid, Platform, Alert, KeyboardAvoidingView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useUser } from '../contexts/UserContext';
@@ -8,11 +8,11 @@ const ChatScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { chat } = route.params;
-  const { messages, addMessageToChat } = useUser(); // Obtener mensajes y función para añadir mensajes del contexto
+  const { messages, addMessageToChat } = useUser(); 
   const [message, setMessage] = useState('');
   const scrollViewRef = useRef();
 
-  const chatMessages = messages[chat.id] || []; // Obtener los mensajes del chat actual
+  const chatMessages = messages[chat.id] || []; 
 
   const handleSend = () => {
     if (message.trim()) {
@@ -22,37 +22,56 @@ const ChatScreen = () => {
         timestamp: new Date(),
         sent: true,
       };
-      addMessageToChat(chat.id, newMessage); // Añadir mensaje al contexto
+      addMessageToChat(chat.id, newMessage); 
       setMessage('');
     }
   };
 
-  const handleOpenMedia = async () => {
+  const requestStoragePermission = async () => {
     if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        {
-          title: 'Permiso de acceso a almacenamiento',
-          message: 'Esta aplicación necesita acceso a su almacenamiento para seleccionar imágenes.',
-          buttonNeutral: 'Preguntar más tarde',
-          buttonNegative: 'Cancelar',
-          buttonPositive: 'Aceptar',
-        }
-      );
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Permiso de almacenamiento denegado');
-        return;
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          {
+            title: 'Permiso de acceso a almacenamiento',
+            message: 'Esta aplicación necesita acceso a su almacenamiento para seleccionar imágenes.',
+            buttonNeutral: 'Preguntar más tarde',
+            buttonNegative: 'Cancelar',
+            buttonPositive: 'Aceptar',
+          }
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
+        return false;
       }
+    }
+    return true; 
+  };
+
+  const handleOpenMedia = async () => {
+    const hasPermission = await requestStoragePermission();
+    if (!hasPermission) {
+      Alert.alert('Permiso denegado', 'No se puede acceder a la galería sin permisos');
+      return;
     }
 
     launchImageLibrary({}, (response) => {
       if (response.didCancel) {
         console.log('Usuario canceló la selección de imagen');
-      } else if (response.error) {
-        console.log('Error: ', response.error);
-      } else {
-        console.log('Imagen seleccionada: ', response.assets[0]);
-        // Puedes agregar la imagen seleccionada al estado de mensajes aquí si es necesario
+      } else if (response.errorCode) {
+        console.log('Error: ', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const asset = response.assets[0];
+        console.log('Imagen seleccionada: ', asset);
+        const newMessage = {
+          text: 'Imagen',
+          id: Date.now().toString(),
+          timestamp: new Date(),
+          sent: true,
+          image: asset.uri,
+        };
+        addMessageToChat(chat.id, newMessage); 
       }
     });
   };
@@ -61,7 +80,11 @@ const ChatScreen = () => {
     const messageStyle = item.sent ? styles.sentMessage : styles.receivedMessage;
     return (
       <View style={[styles.messageItem, messageStyle]}>
-        <Text style={styles.messageText}>{item.text}</Text>
+        {item.image ? (
+          <Image source={{ uri: item.image }} style={styles.messageImage} />
+        ) : (
+          <Text style={styles.messageText}>{item.text}</Text>
+        )}
         <Text style={styles.messageTime}>{item.timestamp.toLocaleTimeString()}</Text>
       </View>
     );
@@ -214,6 +237,12 @@ const styles = StyleSheet.create({
     padding: 4,
     borderRadius: 8,
     color: '#888',
+  },
+  messageImage: {
+    width: 200,
+    height: 200,
+    resizeMode: 'cover',
+    borderRadius: 10,
   },
 });
 

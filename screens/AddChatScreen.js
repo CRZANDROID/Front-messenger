@@ -1,5 +1,3 @@
-// AddChatScreen.js
-
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -18,7 +16,12 @@ const AddChatScreen = () => {
   const handleAddChat = () => {
     const user = getUserByUsername(account);
     if (user) {
-      addChat({ name, username: account });
+      const newChat = {
+        id: Date.now().toString(), 
+        name,
+        username: account,
+      };
+      addChat(newChat);
       navigation.navigate('ChatsList');
     } else {
       Alert.alert('Error', 'Cuenta no encontrada');
@@ -119,4 +122,5 @@ const styles = StyleSheet.create({
 });
 
 export default AddChatScreen;
+
 

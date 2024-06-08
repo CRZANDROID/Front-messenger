@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useUser } from '../contexts/UserContext'; // Importar el contexto de usuario
+import { useUser } from '../contexts/UserContext'; 
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const { users, login } = useUser(); // Obtener la lista de usuarios y la función login del contexto de usuario
+  const { users, login } = useUser(); 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
@@ -14,7 +14,7 @@ const LoginScreen = () => {
     const user = users && users.find(u => u.username === username && u.password === password);
     if (user) {
       login(user);
-      navigation.navigate('ChatsList'); // Redirigir a la pantalla de ChatListScreen si el usuario es válido
+      navigation.navigate('ChatsList'); 
     } else {
       setError(true);
     }

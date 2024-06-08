@@ -1,5 +1,3 @@
-// UserContext.js
-
 import React, { createContext, useState, useContext } from 'react';
 
 const UserContext = createContext();
@@ -9,11 +7,11 @@ export const UserProvider = ({ children }) => {
   const [users, setUsers] = useState([
     { username: 'josue@example.com', password: 'josue' },
     { username: 'darinel@example.com', password: 'darinel' },
-    { username: 'cesar@example.com',password:'cesar'}
+    { username: 'cesar@example.com', password: 'cesar' }
   ]);
   const [chats, setChats] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [messages, setMessages] = useState({}); 
+  const [messages, setMessages] = useState({});
 
   const login = (userData) => {
     setCurrentUser(userData);
@@ -57,3 +55,4 @@ export const UserProvider = ({ children }) => {
 };
 
 export const useUser = () => useContext(UserContext);
+
