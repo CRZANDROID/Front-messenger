@@ -25,7 +25,6 @@ export const UserProvider = ({ children }) => {
 
   const register = (userData) => {
     setUsers(prevUsers => [...prevUsers, userData]);
-    setIsAuthenticated(true);
   };
 
   const getUserByUsername = (username) => {

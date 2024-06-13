@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../contexts/UserContext'; 
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import app from '../core/firebase/firebase';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -11,13 +13,16 @@ const LoginScreen = () => {
   const [error, setError] = useState(false);
 
   const handleLogin = () => {
-    const user = users && users.find(u => u.username === username && u.password === password);
-    if (user) {
-      login(user);
-      navigation.navigate('ChatsList'); 
-    } else {
-      setError(true);
-    }
+    const auth = getAuth(app);
+    signInWithEmailAndPassword(auth, username, password)
+      .then((userCredential) => {
+        console.log(userCredential.user);
+        login(userCredential.user);
+        navigation.navigate('ChatsList');
+      })
+      .catch((error) => {
+        setError(true);
+      });
   };
 
   useEffect(() => {
@@ -30,17 +35,19 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/logo.png')} style={styles.logo} />
+      <Image source={require('../../assets/logo.png')} style={styles.logo} />
       <Text style={styles.title}>Login</Text>
       <View style={styles.form}>
         <TextInput
           placeholder="Account"
+          placeholderTextColor={'#888'}
           value={username}
           onChangeText={setUsername}
           style={styles.input}
         />
         <TextInput
           placeholder="Password"
+          placeholderTextColor={'#888'}
           value={password}
           onChangeText={setPassword}
           secureTextEntry={true}
@@ -71,6 +78,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   title: {
+    color: 'black',
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 30,
@@ -79,6 +87,7 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   input: {
+    color: 'black',
     width: '100%',
     height: 50,
     backgroundColor: '#fff',
@@ -97,7 +106,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     fontSize: 16,
   },
   error: {

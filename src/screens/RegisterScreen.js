@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useUser } from '../contexts/UserContext'; 
+import { useUser } from '../contexts/UserContext';
+import app from '../core/firebase/firebase';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import {doc, setDoc} from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
 
 const RegisterScreen = () => {
+  const db = getFirestore(app);
   const navigation = useNavigation();
-  const { register } = useUser(); 
+  const { register, login } = useUser(); 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -15,16 +20,32 @@ const RegisterScreen = () => {
       Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
-
-    const userData = { username, password };
-    register(userData); 
-    navigation.navigate('ChatsList'); 
+  
+    const auth = getAuth(app);
+    createUserWithEmailAndPassword(auth, username, password)
+      .then((userCredential) => {
+        setDoc(doc(db, 'users', userCredential.user.uid), {
+          email: username.toLowerCase(),
+        })
+        .then(() => {
+          const userData = { username, password };
+          register(userData);
+          login(userCredential.user);
+          navigation.navigate('ChatsList');
+        })
+        .catch((error) => {
+          Alert.alert('Error', error.message);
+        });
+      })
+      .catch((error) => {
+        Alert.alert('Error', error.message);
+      });
   };
 
   return (
     <View style={styles.container}>
       
-      <Image source={require('../assets/logo.png')} style={styles.logo} />
+      <Image source={require('../../assets/logo.png')} style={styles.logo} />
       <Text style={styles.title}>Sign up</Text>
       <View style={styles.form}>
         

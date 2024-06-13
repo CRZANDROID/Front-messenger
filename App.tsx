@@ -1,12 +1,12 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { UserProvider, useUser } from './contexts/UserContext';
-import LoginScreen from './screens/LoginScreen';
-import RegisterScreen from './screens/RegisterScreen';
-import ChatListScreen from './screens/ChatsListScreen';
-import AddChatScreen from './screens/AddChatScreen';
-import ChatScreen from './screens/ChatScreen';
+import { UserProvider, useUser } from './src/contexts/UserContext';
+import LoginScreen from './src/screens/LoginScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
+import ChatListScreen from './src/screens/ChatsListScreen';
+import AddChatScreen from './src/screens/AddChatScreen';
+import ChatScreen from './src/screens/ChatScreen';
 
 
 const Stack = createStackNavigator();
